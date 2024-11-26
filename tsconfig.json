@@ -9,7 +9,7 @@
         "checkJs": true,
     },
     "include": [
-        "src/**/*.js", "src/demo.ts",
+        "index.js", "src/**/*.js", "src/demo.ts",
     ],
     "exclude": [
         "node_modules",
