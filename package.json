@@ -13,7 +13,7 @@
     "dev": "node --watch src/walker.js",
     "build": "rollup -c --bundleConfigAsCjs"
   },
-  "files": ["dist", "type.d.ts", "index.js"],
+  "files": ["dist", "type.d.ts", "index.js", "README.md"],
   "keywords": ["tree", "walker", "common"],
   "author": "",
   "license": "ISC",
