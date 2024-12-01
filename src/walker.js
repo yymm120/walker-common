@@ -23,20 +23,20 @@ function toString() {
  * @this {WalkerNode<any>}
  */
 function walkEach(handle, options) {
-  const queue = [this];
+  const queue = [{ node: this, depth: 1 }];
   while (queue.length > 0) {
-    const node = queue.shift();
+    const { node, depth = 1 } = queue.shift() ?? {};
     if (node) {
-      handle(node[VAL]);
+      handle(node[VAL], depth);
       const children = node?.getChildrenNode();
       if (children?.length > 0) {
-        queue.unshift(...node.getChildrenNode());
+        queue.unshift(...node.getChildrenNode().map(n => ({ node: n, depth: depth + 1 })));
       }
     }
   }
 }
-function onWalkFinish() {}
-function onWalkError() {}
+function onWalkFinish() { }
+function onWalkError() { }
 
 /** @this {WalkerNode<any>} */
 function getParentNode(options = WALKER_OPTIONS_DEFAULT) {
@@ -54,17 +54,17 @@ function getChildrenNode(options = WALKER_OPTIONS_DEFAULT) {
   const children = options.getChildren(this[VAL])
   if (Array.isArray(children)) {
     return children.map((val) => Walker.createNode(val, options)
-  );
+    );
   } else { // @ts-ignore
-    return children? [children].map(val => Walker.createNode(val, options)): []
+    return children ? [children].map(val => Walker.createNode(val, options)) : []
   }
-  
+
 }
-function getDepth() {}
-function getDepthNodes() {}
-function getLastDepthNodes() {}
-function getNodeCount() {}
-function getIter() {}
+function getDepth() { }
+function getDepthNodes() { }
+function getLastDepthNodes() { }
+function getNodeCount() { }
+function getIter() { }
 
 let Algorithm = {};
 /** @type {Algorithm.DFS_PreOrder} depth-first search and preorder traversal, default is left to right */ // @ts-ignore
@@ -84,10 +84,11 @@ Algorithm.BFS = "BFS";
 /** @type {Algorithm.BFS_RL} breadth-first search and right to left*/ // @ts-ignore
 Algorithm.BFS_RL = "BFS_RL";
 
+
 /** @type {WalkerOptions} */
 const WALKER_OPTIONS_DEFAULT = {
   algorithm: Algorithm.DFS_PreOrder,
-  onWalkError: (node) => {},
+  onWalkError: (node) => { },
   getParent: (node) => ("parent" in node && node.parent),
   getChildren: (node) => node?.children ?? [],
   allowCircular: false,
@@ -124,6 +125,7 @@ const NODE_DEFAULT = Object.assign(
   }
 );
 export default class Walker {
+  static Algorithm = Algorithm
   static #Node = class Node {
     /**
      * @param {any} val
@@ -153,7 +155,7 @@ export default class Walker {
     if (node instanceof Object) {
       if ("children" in node) {
         node.children = walkerOptions.getChildren(node);
-        if (Array.isArray(node.children) && node.children.length > 0){
+        if (Array.isArray(node.children) && node.children.length > 0) {
           for (const child of node.children) {
             child.parent = node;
           }
@@ -161,13 +163,13 @@ export default class Walker {
       }
       if ("parent" in node) {
         node.parent = walkerOptions.getParent(node);
-        if ( node.parent instanceof Object ) {
+        if (node.parent instanceof Object) {
           if ("children" in node.parent && Array.isArray(node.parent?.children)) {
             if (!node.parent.children.find((item, i, arr) => {
               if (item === node) {
                 return true;
               } else {
-                const {parent, children, ...value} = item;
+                const { parent, children, ...value } = item;
                 const isFind = Object.keys(value).reduce((pre, cur) => {
                   // @ts-ignore
                   return pre && (value[cur] === node[cur]);

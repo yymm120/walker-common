@@ -1,3 +1,5 @@
+// import Walker from "./src/walker";
+
 export type TreeNode = unknown;
 export type TreeRoot = TreeNode;
 export interface WalkfFn {
@@ -87,4 +89,10 @@ export interface WalkEach<T> {
 
 interface WalkEachHandle<T> {
     (node: T, depth?: number) : void
+}
+
+export default class Walker {
+    static Algorithm: typeof Algorithm
+    static createNode: RootFn
+    static root: RootFn
 }
