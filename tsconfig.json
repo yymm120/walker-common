@@ -3,13 +3,12 @@
         "strict": true,
         "module": "ESNext",
         "target": "ESNext",
-        "baseUrl": ".",
         "outDir": "dist",
         "allowJs": true,
         "checkJs": true,
     },
     "include": [
-        "index.js", "src/**/*.js", "src/demo.ts",
+        "src/**/*.js",
     ],
     "exclude": [
         "node_modules",

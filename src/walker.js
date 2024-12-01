@@ -123,7 +123,7 @@ const NODE_DEFAULT = Object.assign(
     toString,
   }
 );
-export class Walker {
+export default class Walker {
   static #Node = class Node {
     /**
      * @param {any} val
