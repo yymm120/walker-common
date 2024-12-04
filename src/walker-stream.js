@@ -2,7 +2,7 @@
  * @import {  CallbackFn, WalkerNode, WalkerStream as WalkerStreamType } from "type";
  */
 
-import { VAL } from "./common";
+import { VAL, walk } from "./common";
 
 /**
  * @template T
@@ -22,14 +22,61 @@ export class WalkerStream {
 
   /**
    * A map function with stream feature.
-   * 
-   * @param {CallbackFn<T>} callbackfn 
+   *
+   * @template U
+   * @param {(value: T, depth: number, tree: T) => U} callbackfn
    * @param {*} thisArg
    */
-  map(callbackfn, thisArg) {
+  map(callbackfn, ...thisArg) {
+    // @ts-ignore
     this.fns.push(callbackfn);
     return this;
   }
+
+  /**
+   *
+   * { el: {}, children: [ { el: {} } ] }
+   *
+   * @param {string[] | string} keys
+   * @this {import("../type").WalkerStream<any>}
+   */
+  pick(keys) {
+    keys = Array.isArray(keys)? keys : [keys];
+    if (keys) {
+      return this.map((value) => {
+        /** @type { {[key in string] : any }} */
+        let result = {};
+        for (const key of keys) {
+          result[key] = value[key];
+        }
+        return result;
+      });
+    } else {
+      return this;
+    }
+  }
+
+  /**
+   *
+   * [ {}, [ {}, {} ] ]
+   *
+   * @param {string} key
+   * @this {import("../type").WalkerStream<any>}
+   */
+  pickInto(key) {
+    if (key) {
+      this.resultSet = [];
+      return this.pick([key]); // { el: {}, children: [] }
+    } else {
+      return this;
+    }
+  }
+
+  /**
+   * { el: {}, children: [ { el: {} } ] }
+   * [ {}, [ {}, {} ] ]
+   *
+   */
 
   /**
    * A forEach function for retrive all node in the tree. it is simulate with `Array.forEach()`.
@@ -41,32 +88,55 @@ export class WalkerStream {
   /**
    *
    * @this {import("../type").WalkerStream<any>}
+   * @returns
    */
-  static #walk = function * () {
-    const queue = [this.node];
-    while (queue.length > 0) {
-      const node = queue.shift();
-      if (node) {
-        yield node[VAL];
-        const children = node?.getChildrenNode();
-        if (children?.length > 0) {
-          queue.unshift(...node.getChildrenNode());
+  collect() {
+    let resultSet = this.resultSet ?? {};
+    for (const node of walk.apply(this, [
+      this.node,
+      this.node.walkerOptions,
+      resultSet,
+    ])) {
+      const { walkerNode, parentNode, depth } = node;
+      const value = walkerNode[VAL];
+      const temp = this.fns.reduce((value, callback) => {
+        return callback(
+          value,
+          depth,
+          parentNode ? parentNode[VAL] : null,
+          this.node[VAL]
+        );
+      }, value);
+
+      const { children, parent, ...other } = temp;
+
+      if (depth === 1) {
+        if (Array.isArray(resultSet)) {
+          node.parentSet.push(Object.values(other)[0]);
+          resultSet = node.parentSet;
+        } else {
+          node.parentSet = other;
+          resultSet = node.parentSet;
+        }
+      } else if (
+        (node.parentSet?.children && Array.isArray(node.parentSet.children)) ||
+        (node.parentSet[1] && Array.isArray(node.parentSet[1]))
+      ) {
+        if (Array.isArray(resultSet)) {
+          node.parentSet[1].push(Object.values(other)[0]);
+        } else {
+          node.parentSet.children.push(other);
+        }
+      }
+
+      if (walkerNode.getChildrenNode().length > 0) {
+        if (Array.isArray(resultSet)) {
+          node.parentSet.push([]);
+        } else {
+          node.parentSet.children = [];
         }
       }
     }
-  }
-
-  /**
-   * 
-   * @this {import("../type").WalkerStream<T>}
-   * @returns 
-   */
-  collect() {
-    for (const node of WalkerStream.#walk.apply(this)) {
-        const result = this.fns.reduce((node, callback) => {
-            return callback(node, 0, this.node[VAL])
-        }, node);
-    }
-    // return this.node;
+    return resultSet;
   }
 }

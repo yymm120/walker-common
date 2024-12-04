@@ -1,8 +1,7 @@
 /**
  * @import { WalkEach, TData, WalkerOptions, RootFn } from "type";
  */
-import { VAL } from "./common";
-import { WALKER_OPTIONS_DEFAULT } from "./walker-options";
+import { VAL, walk, WALKER_OPTIONS_DEFAULT } from "./common";
 import { WalkerStream } from "./walker-stream";
 
 
@@ -59,16 +58,9 @@ function toString() {
  * @this {import("type").WalkerNode<any>}
  */
 function walkEach(handle, options) {
-  const queue = [{ node: this, depth: 1 }];
-  while (queue.length > 0) {
-    const { node, depth = 1 } = queue.shift() ?? {};
-    if (node) {
-      handle(node[VAL], depth);
-      const children = node?.getChildrenNode();
-      if (children?.length > 0) {
-        queue.unshift(...node.getChildrenNode().map(n => ({ node: n, depth: depth + 1 })));
-      }
-    }
+  for (const node of walk(this, options, {})) {
+    const {walkerNode, depth } = node;
+    handle(walkerNode[VAL], depth);
   }
 }
 
@@ -130,7 +122,7 @@ export class WalkerNode {
   static createEmptyNode = (node, options = {}) => {
     const walkerOptions = { ...WALKER_OPTIONS_DEFAULT, ...options };
     // @ts-ignore
-    return new Walker.#Node(node, walkerOptions);
+    return new WalkerNode(node, walkerOptions);
   };
 
   /** @type { RootFn } */

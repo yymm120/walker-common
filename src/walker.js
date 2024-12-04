@@ -2,10 +2,12 @@
  * @import {  RootFn } from "type";
  */
 
+import { Algorithm } from "./common";
 import { WalkerNode } from "./walker-node";
 
 export default class Walker {
   static #Node = WalkerNode;
+  static Algorithm = Algorithm;
   // static #WalkerStream = WalkerStream
 
   /** @type { RootFn } */
@@ -14,14 +16,30 @@ export default class Walker {
   };
 }
 
+// const result = Walker.root(
+//   {
+//     id: "001",
+//     label: "book",
+//     icon: "ph--sum-thin",
+//     menus: [
+//       {
+//         id: "002",
+//         label: "computer",
+//         icon: "ph--computer-thin",
+//       },
+//       {
+//         id: "003",
+//         label: "tablet",
+//         icon: "ph--tablet-thin",
+//       },
+//     ],
+//   },
+//   { getChildren: (node) => node.menus }
+// )
+//   .stream()
+//   .map((node) => {
+//     return {}
+//   })
+//   .collect();
 
-// const data = { id: 1, children: [ {id: 2}, {id: 3}]}
-
-// const a = Walker.root(data).stream().map(({id, ...other}, depth) => {
-//   const div = `<div id="${id}"></div>`;
-//   return { div: div, ...other }
-// }).map(({div, ...other}) => {
-//   console.log(div)
-//   return { sds: "asdsd", ...other }
-// }).collect()
-
+// console.log(result);

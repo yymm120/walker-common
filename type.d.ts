@@ -31,7 +31,6 @@ export type TData = {
 } | any
 
 export interface WalkerOptions {
-    lazy: "lazy" | "immediately";
     getChildren: <T extends TData>(node: TData) => TData[];
     algorithm: Algorithm;
     getParent: <T extends TData>(node: TData) => TData | undefined;
@@ -54,12 +53,24 @@ export class WalkerIterNode<T> implements IterableIterator<T> {
     throw?(e?: any): IteratorResult<T, any>;
 }
 
-export type CallbackFn<T> = (<U>(value: T, depth: number, tree: T) => U);
 
-export class WalkerStream<T> {
+interface Streamable<T> {
+    map<U>(callbackfn: (value: T, depth: number, tree: T) => U, thisArg?: any): Streamable<U>;
+    pick<Key extends keyof T, U extends {[k in Key]: T[k]}>(keys?: Key[] | Key): Streamable<U>;
+    pickInto<Key extends keyof T, U extends {[K in Key]: T[K]}>(key?: Key): Pick<Streamable<U>, "collect"> & { getRoot(): U[Key]};
+    collect(): T;
+}
+
+
+export type CallbackFn<T> = (<U>(value: T, depth: number, parent: T, tree: T) => U);
+
+export class WalkerStream<T> implements Streamable<T> {
     node: WalkerNode<T>
     fns: CallbackFn<T>[]
-    map<U>(callbackfn: (value: T, depth: number, tree: T) => U, thisArg?: any): WalkerStream<U>;
+    resultSet: T
+    map<U>(callbackfn: (value: T, depth: number, parent: T, tree: T) => NonNullable<U>, thisArg?: any): Streamable<U>;
+    pick<Key extends keyof T, U extends {[k in Key]: T[k]}>(keys?: Key[] | Key): Streamable<U>;
+    pickInto<Key extends keyof T, U extends {[K in Key]: T[K]}>(key?: Key): Pick<Streamable<U>, "collect"> & { getRoot(): U[Key]};
     collect(): T;
 }
 

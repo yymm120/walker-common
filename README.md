@@ -1,6 +1,8 @@
 # Walker Common
 
-a walker util for retriver Tree data structure.
+A walker util for retrive tree data structure.
+
+> Note: Still in experimental beta version, please do not use in production environment.
 
 ## Usage
 
@@ -15,42 +17,31 @@ root.walkEach((node) => {
 });
 ```
 
-#### 2. stream().map: pipe map
+#### 2. stream
 
 ```js
-import { Walker } from "walker-common";
-
-const root = Walker.root({ id: 001, name: "allen" });
-const data = root
+const data = Walker.root({a: "123" ,b: "sso", children: [{a: "sss", b: "231"}]}, { algorithm: Walker.Algorithm.DFS_PreOrder })
   .stream()
-  .map((node) => {
-    return { ...node, age: 18 };
-  })
-  .map((node) => {
-    return { ...node, country: "-" };
-  })
-  .collect();
-```
+  .map((node) => ({...node, c: "def"}))
+  .map((node) => ({...node, el: `<button>${node.a}</button>`}))
+  .pick(["a", "b", "el"])
+  .collect()
 
-
-#### Example - React
-```js
-import { Walker } from "walker-common";
-
-const root = Walker.root();
-const MenuComponent = () => {
-    return (
-        <>
-        {
-            root.stream().map((node, depth, tree) => {
-                if (depth === 1) {
-                    return <li><button>{node.value}</button></li>
-                } else {
-                    return <ul><p>{node.value}</p></ul>
-                }
-            }).collect()
-        }
-        </>
-    )
+/**
+{
+  a: "123",
+  b: "sso",
+  el: "<button>123</button>",
+  children: [
+    {
+      a: "sss",
+      b: "231",
+      el: "<button>sss</button>",
+    }
+  ],
 }
+*/
 ```
+
+
+
