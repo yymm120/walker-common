@@ -1,7 +1,8 @@
 /**
  * @import {  CallbackFn, WalkerNode, WalkerStream as WalkerStreamType } from "type";
  */
-import { VAL } from "./walker-node";
+
+import { VAL } from "./common";
 
 /**
  * @template T

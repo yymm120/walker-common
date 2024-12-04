@@ -1,11 +1,10 @@
 /**
- * @import { WalkEach, TData, WalkerOptions } from "type";
+ * @import { WalkEach, TData, WalkerOptions, RootFn } from "type";
  */
-import Walker from "./walker";
+import { VAL } from "./common";
 import { WALKER_OPTIONS_DEFAULT } from "./walker-options";
 import { WalkerStream } from "./walker-stream";
 
-export const VAL = Symbol.for("walker-node-tree");
 
 export const NODE_DEFAULT = Object.assign(
   {},
@@ -89,7 +88,7 @@ function stream() {
 function getParentNode(options = WALKER_OPTIONS_DEFAULT) {
   const parent = options.getParent(this[VAL]);
   if (parent) {
-    return Walker.createNode(parent, options);
+    return WalkerNode.createNode(parent, options);
   }
 }
 
@@ -102,11 +101,11 @@ function getParentNode(options = WALKER_OPTIONS_DEFAULT) {
 function getChildrenNode(options = WALKER_OPTIONS_DEFAULT) {
   const children = options.getChildren(this[VAL]);
   if (Array.isArray(children)) {
-    return children.map((val) => Walker.createNode(val, options));
+    return children.map((val) => WalkerNode.createNode(val, options));
   } else {
     // @ts-ignore
     return children
-      ? [children].map((val) => Walker.createNode(val, options))
+      ? [children].map((val) => WalkerNode.createNode(val, options))
       : [];
   }
 }
@@ -126,4 +125,66 @@ export class WalkerNode {
     this.getParentNode = getParentNode.bind(this, options);
     this.walkerOptions = options;
   }
+
+    /** @type { RootFn } */
+  static createEmptyNode = (node, options = {}) => {
+    const walkerOptions = { ...WALKER_OPTIONS_DEFAULT, ...options };
+    // @ts-ignore
+    return new Walker.#Node(node, walkerOptions);
+  };
+
+  /** @type { RootFn } */
+  static createNode = (node, options = {}) => {
+    const walkerOptions = { ...WALKER_OPTIONS_DEFAULT, ...options };
+    if (node instanceof Object) {
+      if ("children" in node) {
+        node.children = walkerOptions.getChildren(node);
+        if (Array.isArray(node.children) && node.children.length > 0) {
+          for (const child of node.children) {
+            child.parent = node;
+          }
+        }
+      }
+      if ("parent" in node) {
+        node.parent = walkerOptions.getParent(node);
+        if (node.parent instanceof Object) {
+          if (
+            "children" in node.parent &&
+            Array.isArray(node.parent?.children)
+          ) {
+            if (
+              !node.parent.children.find((item, i, arr) => {
+                if (item === node) {
+                  return true;
+                } else {
+                  const { parent, children, ...value } = item;
+                  const isFind = Object.keys(value).reduce((pre, cur) => {
+                    // @ts-ignore
+                    return pre && value[cur] === node[cur];
+                  }, true);
+                  if (isFind) {
+                    arr[i] = node;
+                  }
+                  return isFind;
+                }
+              })
+            ) {
+              node.parent.children.push(node);
+            }
+          } else {
+            Object.assign(node.parent, { children: [node] });
+          }
+        }
+      }
+    }
+    const walkerNode = new WalkerNode(node, walkerOptions);
+    // @ts-ignore
+    return walkerNode;
+  };
+
+  /** @type { RootFn } */
+  static root = (node, options = {}) => {
+    // @ts-ignore
+    return this.createNode(node, options);
+  };
 }

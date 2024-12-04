@@ -1,3 +1,5 @@
+
+export const VAL = Symbol.for("walker-node-tree");
 export let Algorithm = {};
 /** @type {Algorithm.DFS_PreOrder} depth-first search and preorder traversal, default is left to right */ // @ts-ignore
 Algorithm.DFS_PreOrder = "DFS_PreOrder";
