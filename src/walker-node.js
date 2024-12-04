@@ -68,7 +68,10 @@ function walkEach(handle, options) {
  * 
  * @this {import("type").WalkerNode<any>}
  */
-function stream() {
+function stream(adapter = "default") {
+  if (adapter === "react") {
+    this.walkerOptions // @todo
+  }
     return new WalkerStream(this)
 }
 

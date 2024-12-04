@@ -2,12 +2,13 @@
  * @import {  RootFn } from "type";
  */
 
-import { Algorithm } from "./common";
+import { Algorithm, Adapter } from "./common";
 import { WalkerNode } from "./walker-node";
 
 export default class Walker {
   static #Node = WalkerNode;
   static Algorithm = Algorithm;
+  static Adapter = Adapter;
   // static #WalkerStream = WalkerStream
 
   /** @type { RootFn } */

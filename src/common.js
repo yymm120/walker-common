@@ -24,6 +24,10 @@ export const Algorithm = (() => {
   return Algorithm;
 })();
 
+export const Adapter = (() => {
+  let Adapter = {};
+  Adapter.React = "react";
+})()
 
 /** @type {import("../type").WalkerOptions} */
 export const WALKER_OPTIONS_DEFAULT = {
