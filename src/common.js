@@ -1,5 +1,24 @@
+export let Algorithm = {};
+/** @type {Algorithm.DFS_PreOrder} depth-first search and preorder traversal, default is left to right */ // @ts-ignore
+Algorithm.DFS_PreOrder = "DFS_PreOrder";
+/** @type {Algorithm.DFS_InOrder} depth-first search and inorder traversal, default is left to right */ // @ts-ignore
+Algorithm.DFS_InOrder = "DFS_InOrder";
+/** @type {Algorithm.DFS_PostOrder} depth-first search and postorder traversal, default is left to right */ // @ts-ignore
+Algorithm.DFS_PostOrder = "DFS_PostOrder";
+/** @type {Algorithm.DFS_PreOrder_RL} depth-first search and postorder traversal, default is right to left */ // @ts-ignore
+Algorithm.DFS_PreOrder_RL = "DFS_PreOrder-RL";
+/** @type {Algorithm.DFS_InOrder_RL} depth-first search and postorder traversal, default is right to left */ // @ts-ignore
+Algorithm.DFS_InOrder_RL = "DFS_InOrder_RL";
+/** @type {Algorithm.DFS_PostOrder_RL} depth-first search and postorder traversal, RL means right to left */ // @ts-ignore
+Algorithm.DFS_PostOrder_RL = "DFS_PostOrder_RL";
+/** @type {Algorithm.BFS} breadth-first search and left to right*/ // @ts-ignore
+Algorithm.BFS = "BFS";
+/** @type {Algorithm.BFS_RL} breadth-first search and right to left*/ // @ts-ignore
+Algorithm.BFS_RL = "BFS_RL";
+
 /**
  * 以"浅拷贝"的方式从object中提取属性, 并返回一个新的对象.
+ * 
  * @type {import("type").ObjectPick}
  */
 export function objectPick(object, pick) {
@@ -55,3 +74,4 @@ export function hasCircular(queue) {
   }
   return false;
 }
+

@@ -22,13 +22,14 @@ export enum Algorithm {
   /** breadth-first search and right to left*/
   BFS_RL = "BFS_RL"
 }
-// Algorithm.BFS
+
 
 export type TData = {
     [k in string]: any
 } | any
 
 export interface WalkerOptions {
+    lazy: "lazy" | "immediately";
     getChildren: <T extends TData>(node: TData) => TData[];
     algorithm: Algorithm;
     getParent: <T extends TData>(node: TData) => TData | undefined;
@@ -42,16 +43,36 @@ export interface Serializable<T extends {children?: T[], parent?: T}> {
     deSerialize: () => WalkerNode<T>
 }
 
-export interface WalkerNode<T> {
+export class WalkerIterNode<T> implements IterableIterator<T> {
+    [Symbol.iterator](): IterableIterator<T>;
+    val: T;
+    walkerOptions: WalkerOptions
+    next(...args: [] | [undefined]): IteratorResult<T, any>;
+    return?(value?: any): IteratorResult<T, any>;
+    throw?(e?: any): IteratorResult<T, any>;
+}
+
+export type CallbackFn<T> = (<U>(value: T, depth: number, tree: T) => U);
+
+export class WalkerStream<T> {
+    node: WalkerNode<T>
+    fns: CallbackFn<T>[]
+    map<U>(callbackfn: (value: T, depth: number, tree: T) => U, thisArg?: any): WalkerStream<U>;
+    collect(): T;
+}
+
+export class WalkerNode<T> {
     // new<T>(node: T, options: Partial<WalkerOptions>) : WalkerNode
-    [VAL: symbol]: T;
+    [VAL: symbol ]: T;
     nodeList: T[]
-    walkEach: WalkEach<T>,
+    walkEach: WalkEach<T>
     // onWalkError: () => void,
     // onWalkFinish: () => void,
-    getParentNode: () => WalkerNode<T> | undefined,
-    getChildrenNode: () => WalkerNode<T>[],
-    appendChild: (node: WalkerNode<T>) => void,
+    getParentNode: () => WalkerNode<T> | undefined
+    getChildrenNode: () => WalkerNode<T>[]
+    appendChild: (node: WalkerNode<T>) => void
+    stream: () => WalkerStream<T>
+    walkerOptions: WalkerOptions
     // getDepth: () => void,
     // getDepthNodes: () => void,
     // getLastDepthNodes: () => void,
