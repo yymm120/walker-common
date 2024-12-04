@@ -60,14 +60,14 @@ function toString() {
  * @this {import("type").WalkerNode<any>}
  */
 function walkEach(handle, options) {
-  const queue = [this];
+  const queue = [{ node: this, depth: 1 }];
   while (queue.length > 0) {
-    const node = queue.shift();
+    const { node, depth = 1 } = queue.shift() ?? {};
     if (node) {
-      handle(node[VAL]);
+      handle(node[VAL], depth);
       const children = node?.getChildrenNode();
       if (children?.length > 0) {
-        queue.unshift(...node.getChildrenNode());
+        queue.unshift(...node.getChildrenNode().map(n => ({ node: n, depth: depth + 1 })));
       }
     }
   }
