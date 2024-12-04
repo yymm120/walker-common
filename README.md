@@ -7,6 +7,19 @@ A walker util for retrive tree data structure.
 
 > Note: Still in experimental beta version, please do not use in production environment.
 
+## Install
+```bash
+npm install walker-common@latest
+```
+```bash
+pnpm install walker-common@latest
+```
+```bash
+yarn add walker-common@latest
+```
+```bash
+bun add walker-common@latest
+```
 ## Usage
 
 #### 1. walkEach: Retrive all tree node.
